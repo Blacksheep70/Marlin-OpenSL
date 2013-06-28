@@ -807,18 +807,18 @@ void process_commands()
       relative_mode = true;
       break;
     case 92: // G92
-      if(!code_seen(axis_codes[LZ_AXIS]))
-        st_synchronize();
+      st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) { 
-           if(i == LZ_AXIS) {
-             current_position[i] = code_value();  
-             plan_set_e_position(current_position[LZ_AXIS]);
-           }
-           else {
-             current_position[i] = code_value()+add_homeing[i];  
-             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[RZ_AXIS], current_position[LZ_AXIS]);
-           }
+          if(i == LZ_AXIS)
+          {
+            current_position[i] = code_value()+add_homeing[2];
+          }
+          else
+          {
+           current_position[i] = code_value()+add_homeing[i];  
+          }
+          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[RZ_AXIS], current_position[LZ_AXIS]);
         }
       }
       break;
@@ -1036,19 +1036,7 @@ void process_commands()
       {
         if(code_seen(axis_codes[i])) 
         {
-          if(i == 3) { // E
-            float value = code_value();
-            if(value < 20.0) {
-              float factor = axis_steps_per_unit[i] / value; // increase e constants if M92 E14 is given for netfab.
-              max_e_jerk *= factor;
-              max_feedrate[i] *= factor;
-              axis_steps_per_sqr_second[i] *= factor;
-            }
-            axis_steps_per_unit[i] = value;
-          }
-          else {
             axis_steps_per_unit[i] = code_value();
-          }
         }
       }
       break;
@@ -1146,7 +1134,7 @@ void process_commands()
       if(code_seen('T')) mintravelfeedrate = code_value();
       if(code_seen('B')) minsegmenttime = code_value() ;
       if(code_seen('X')) max_xy_jerk = code_value() ;
-      if(code_seen('Z')) max_z_jerk = code_value() ;
+      if(code_seen('Z')) { max_z_jerk = code_value() ;  max_e_jerk = max_z_jerk;}
       if(code_seen('E')) max_e_jerk = code_value() ;
     }
     break;
