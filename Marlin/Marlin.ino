@@ -32,6 +32,8 @@
 // inslude the SPI library:
 #include <SPI.h>
 
+#include "TimerOne.h"
+
 #include "planner.h"
 #include "stepper.h"
 #include "motion_control.h"
@@ -283,6 +285,10 @@ void setup_galvos()
   #ifdef GALVO_SS_PIN
   pinMode (GALVO_SS_PIN, OUTPUT);
   SPI.begin();   
+  
+  Timer1.initialize(1000); //1000/16Mhz
+  Timer1.attachInterrupt(timed_refresh_of_galvos); // blinkLED to run every 0.15 seconds
+
   #endif
   
   #if (LASER_PIN > -1) 
@@ -600,6 +606,11 @@ static void homeaxis(int axis) {
   if (axis==RZ_AXIS ? HOMEAXIS_DO(Z) :
       0) {
     current_position[axis] = 0;
+
+    current_position[X_AXIS] = 0;
+    current_position[Y_AXIS] = 0;
+    set_galvo_pos(0,0);
+    
     current_position[LZ_AXIS] = current_position[RZ_AXIS];
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[RZ_AXIS], current_position[LZ_AXIS]);
     destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
@@ -630,12 +641,11 @@ static void homeaxis(int axis) {
     endstops_hit_on_purpose();
   }
   
-    Galvo_WorldXPosition = 0;
-    Galvo_WorldYPosition = 0;
     current_position[LZ_AXIS] = 0;
     current_position[RZ_AXIS] = 0;
     
-    move_galvos(Galvo_WorldXPosition, Galvo_WorldYPosition);
+    set_galvo_pos(0,0);
+    move_galvos(0, 0);
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
@@ -953,11 +963,6 @@ void process_commands()
         LaserPower = 0;
         break;
       case 602: // Galvo Debug
-        SERIAL_PROTOCOLPGM("GalvoW: (");
-        SERIAL_PROTOCOL(Galvo_WorldXPosition);
-        SERIAL_PROTOCOLPGM(",");
-        SERIAL_PROTOCOL(Galvo_WorldYPosition);
-        SERIAL_PROTOCOLPGM(") "); 
         break;
     #endif //LASER_PIN
     

@@ -33,10 +33,7 @@
 //=============================public variables  ============================
 //===========================================================================
 block_t *current_block;  // A pointer to the block currently being traced
-unsigned long Galvo_WorldXPosition;
-unsigned long Galvo_WorldYPosition;
-unsigned short Galvo_XPosition;
-unsigned short Galvo_YPosition;
+
 
 //===========================================================================
 //=============================private variables ============================
@@ -61,6 +58,8 @@ static unsigned short acc_step_rate; // needed for deccelaration start point
 static char step_loops;
 static unsigned short OCR1A_nominal;
 
+volatile unsigned long Galvo_WorldXPosition;
+volatile unsigned long Galvo_WorldYPosition;
 volatile long endstops_trigsteps[3]={0,0,0};
 volatile long endstops_stepsTotal,endstops_stepsDone;
 static volatile bool endstop_x_hit=false;
@@ -753,6 +752,12 @@ void update_Y_galvo(int step_dir)
    move_Y_galvo(s);
 }
 
+void set_galvo_pos(unsigned long X, unsigned long Y)
+{
+   Galvo_WorldYPosition = X;
+   Galvo_WorldYPosition = Y;
+}
+
 void move_galvos(unsigned long X, unsigned long Y)
 {
   
@@ -810,6 +815,12 @@ void coordinate_XY_move(unsigned long X, unsigned long Y)
   digitalPotWrite(3, yHigh+1);
   digitalPotWrite(4, xLow);
   digitalPotWrite(5, yLow);
+}
+
+void timed_refresh_of_galvos(void)
+{
+  update_X_galvo(Galvo_WorldXPosition);
+  update_Y_galvo(Galvo_WorldYPosition);
 }
 
 void move_X_galvo(unsigned short X)
