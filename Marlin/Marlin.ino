@@ -286,8 +286,8 @@ void setup_galvos()
   pinMode (GALVO_SS_PIN, OUTPUT);
   SPI.begin();   
   
-  Timer1.initialize(1000); //1000/16Mhz
-  Timer1.attachInterrupt(timed_refresh_of_galvos); // blinkLED to run every 0.15 seconds
+  //Timer1.initialize(1000); //1000/16Mhz
+  //Timer1.attachInterrupt(timed_refresh_of_galvos); // blinkLED to run every 0.15 seconds
 
   #endif
   
