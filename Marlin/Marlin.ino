@@ -32,7 +32,7 @@
 // inslude the SPI library:
 #include <SPI.h>
 
-#include "TimerOne.h"
+//#include "TimerOne.h"
 
 #include "planner.h"
 #include "stepper.h"
